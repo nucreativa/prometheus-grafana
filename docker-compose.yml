@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  prometheus:
+    image: prom/prometheus
+    networks:
+      - app-network
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+  grafana:
+    image: grafana/grafana-enterprise
+    networks:
+      - app-network
+    ports:
+      - 3000:3000
+  alertmanager:
+    image: prom/alertmanager
+    networks:
+      - app-network
+    ports:
+      - 9093:9093
+
+volumes:
+  prometheus-data:
+
+
+networks:
+  app-network:
+    driver: bridge
