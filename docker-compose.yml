@@ -1,6 +1,7 @@
 version: '3.9'
 
 services:
+
   prometheus:
     image: prom/prometheus
     networks:
@@ -11,23 +12,35 @@ services:
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
+
   grafana:
-    image: grafana/grafana-enterprise
+    image: grafana/grafana
+    restart: unless-stopped
     networks:
       - app-network
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana-data:/var/lib/grafana
     ports:
       - 3000:3000
+
   alertmanager:
     image: prom/alertmanager
+    restart: unless-stopped
     networks:
       - app-network
+    volumes:
+      - "./alertmanager:/config"
+      - alertmanager-data:/data
+    command: --config.file=/config/alertmanager.yml --log.level=debug
     ports:
       - 9093:9093
-
-volumes:
-  prometheus-data:
-
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:
+  alertmanager-data:
